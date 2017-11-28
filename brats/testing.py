@@ -12,6 +12,8 @@ from tiantan_preprocess import convert_image_format
 import predict
 from train import config
 
+from keras_contrib.layers import Deconvolution3D
+
 def test_convert_image_to_nii():
     image_path = '/media/mingrui/960EVO/workspace/3DUnetCNN/brats/data/tiantan_preprocessed/train/IDH_1/truth.nii.gz'
     nii_path = '/media/mingrui/960EVO/workspace/3DUnetCNN/brats/data/tiantan_preprocessed/train/IDH_1/nii_truth.nii.gz'
@@ -21,5 +23,5 @@ def test_convert_image_to_nii():
 if __name__ == "__main__":
     print("testing: ")
     #test_convert_image_to_nii()
-    predict.run_validation_case(0, "./brats/testing", "./brats/3d_unet_model.h5", config["hdf5_file"], config["validation_file"], config["training_modalities"])
+    #predict.run_validation_case(0, "./brats/testing", "./brats/3d_unet_model.h5", config["hdf5_file"], config["validation_file"], config["training_modalities"])
 

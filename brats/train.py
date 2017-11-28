@@ -22,7 +22,7 @@ if "patch_shape" in config and config["patch_shape"] is not None:
 else:
     config["input_shape"] = tuple([config["nb_channels"]] + list(config["image_shape"]))
 config["truth_channel"] = config["nb_channels"]
-config["deconvolution"] = False  # if False, will use upsampling instead of deconvolution
+config["deconvolution"] = True  # if False, will use upsampling instead of deconvolution
 
 config["batch_size"] = 3
 config["validation_batch_size"] = 6
@@ -44,9 +44,10 @@ config["data_file"] = os.path.abspath("brats_data.h5")
 config["model_file"] = os.path.abspath("tumor_segmentation_model.h5")
 config["training_file"] = os.path.abspath("training_ids.pkl")
 config["validation_file"] = os.path.abspath("validation_ids.pkl")
-config["overwrite"] = False  # If True, will previous files. If False, will use previously written files.
+config["overwrite"] = True  # If True, will previous files. If False, will use previously written files.
 
-config["preprocessed"] = "tiantan_preprocessed" # change this to use different data files
+#config["preprocessed"] = "tiantan_preprocessed" # change this to use different data files
+config["preprocessed"] = "preprocessed_test" # test data
 
 def fetch_training_data_files():
     training_data_files = list()
