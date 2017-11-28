@@ -21,7 +21,7 @@ def append_basename(in_file, append):
     return os.path.join(dirname, base + append + "." + ext)
 
 
-def get_background_mask(in_folder, out_file, truth_name="GlistrBoost_ManuallyCorrected"):
+def get_background_mask(in_folder, out_file, truth_name="tu"):
     """
     This function computes a common background mask for all of the data in a subject folder.
     :param in_folder: a subject folder from the BRATS dataset.
@@ -30,7 +30,7 @@ def get_background_mask(in_folder, out_file, truth_name="GlistrBoost_ManuallyCor
     :return: the path to the out_file
     """
     background_image = None
-    for name in config["all_modalities"] + [truth_name]:
+    for name in ["t2"] + [truth_name]:
         image = sitk.ReadImage(get_image(in_folder, name))
         if background_image:
             if name == truth_name and not (image.GetOrigin() == background_image.GetOrigin()):
@@ -86,7 +86,7 @@ def rescale(in_file, out_file, minimum=0, maximum=20000):
 
 
 def get_image(subject_folder, name):
-    file_card = os.path.join(subject_folder, "*" + name + "*.nii.gz")
+    file_card = os.path.join(subject_folder, "*" + name + "*.nii")
     try:
         return glob.glob(file_card)[0]
     except IndexError:
@@ -115,9 +115,9 @@ def normalize_image(in_file, out_file, bias_correction=True):
     return out_file
 
 
-def convert_brats_folder(in_folder, out_folder, truth_name="GlistrBoost_ManuallyCorrected",
+def convert_tiantan_folder(in_folder, out_folder, truth_name="tu",
                          no_bias_correction_modalities=None):
-    for name in config["all_modalities"]:
+    for name in ["t2"]:
         image_file = get_image(in_folder, name)
         out_file = os.path.abspath(os.path.join(out_folder, name + ".nii.gz"))
         perform_bias_correction = no_bias_correction_modalities and name not in no_bias_correction_modalities
@@ -128,14 +128,15 @@ def convert_brats_folder(in_folder, out_folder, truth_name="GlistrBoost_Manually
     except RuntimeError:
         truth_file = get_image(in_folder, truth_name.split("_")[0])
     out_file = os.path.abspath(os.path.join(out_folder, "truth.nii.gz"))
-    shutil.copy(truth_file, out_file)
-    check_origin(out_file, get_image(in_folder, config["all_modalities"][0]))
+    #shutil.copy(truth_file, out_file)
+    convert_image_format(truth_file, out_file)
+    check_origin(out_file, get_image(in_folder, ["t2"][0]))
 
 
-def convert_brats_data(brats_folder, out_folder, overwrite=False, no_bias_correction_modalities=("flair",)):
+def convert_tiantan_data(tiantan_folder, out_folder, overwrite=False, no_bias_correction_modalities=("flair",)):
     """
     Preprocesses the BRATS data and writes it to a given output folder. Assumes the original folder structure.
-    :param brats_folder: folder containing the original brats data
+    :param tiantan_folder: folder containing the original brats data
     :param out_folder: output folder to which the preprocessed data will be written
     :param overwrite: set to True in order to redo all the preprocessing
     :param no_bias_correction_modalities: performing bias correction could reduce the signal of certain modalities. If
@@ -143,7 +144,7 @@ def convert_brats_data(brats_folder, out_folder, overwrite=False, no_bias_correc
     or tuple.
     :return:
     """
-    for subject_folder in glob.glob(os.path.join(brats_folder, "*", "*")):
+    for subject_folder in glob.glob(os.path.join(tiantan_folder, "*")):
         if os.path.isdir(subject_folder):
             subject = os.path.basename(subject_folder)
             new_subject_folder = os.path.join(out_folder, os.path.basename(os.path.dirname(subject_folder)),
@@ -151,5 +152,24 @@ def convert_brats_data(brats_folder, out_folder, overwrite=False, no_bias_correc
             if not os.path.exists(new_subject_folder) or overwrite:
                 if not os.path.exists(new_subject_folder):
                     os.makedirs(new_subject_folder)
-                convert_brats_folder(subject_folder, new_subject_folder,
+                convert_tiantan_folder(subject_folder, new_subject_folder,
                                      no_bias_correction_modalities=no_bias_correction_modalities)
+
+def convert_truth_to_nii():
+    """
+    nibabel complains truth file is not nii
+    :return:
+    """
+    training_data_files = list()
+    for subject_dir in glob.glob(os.path.join(os.path.dirname(__file__), "data", config["preprocessed"], "*", "*")):
+        subject = (os.path.join(subject_dir, "truth.nii.gz"))
+        training_data_files.append(subject)
+    for file in training_data_files:
+        file = os.path.join('/media/mingrui/960EVO/workspace/3DUnetCNN/brats/', file)
+        convert_image_format(file, file)
+        print(file)
+
+if __name__ == "__main__":
+    #convert_tiantan_data('/media/mingrui/960EVO/datasets/tiantan/20171119NewData/MRIdata_Tiantan/training_tiantan_IDH1', '/media/mingrui/960EVO/workspace/3DUnetCNN/brats/data/tiantan_preprocessed/training_tiantan_IDH1')
+    #convert_tiantan_data('/media/mingrui/960EVO/datasets/tiantan/20171119NewData/MRIdata_Tiantan/valid_tiantan_IDH1', '/media/mingrui/960EVO/workspace/3DUnetCNN/brats/data/tiantan_preprocessed/valid_tiantan_IDH1')
+    convert_truth_to_nii()

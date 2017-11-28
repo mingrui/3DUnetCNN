@@ -17,7 +17,7 @@ def patch_wise_prediction(model, data, overlap=0, batch_size=1):
     :param overlap:
     :return:
     """
-    patch_shape = tuple([int(dim) for dim in model.input.shape[-3:]])
+    patch_shape = tuple([int(dim) for dim in [64, 64, 64]]) #model.input.shape[-3:]
     predictions = list()
     indices = compute_patch_indices(data.shape[-3:], patch_size=patch_shape, overlap=overlap)
     batch = list()
@@ -129,7 +129,7 @@ def run_validation_case(test_index, out_dir, model_file, hdf5_file, validation_k
     test_truth = nib.Nifti1Image(data_file.root.truth[data_index][0], affine)
     test_truth.to_filename(os.path.join(out_dir, "truth.nii.gz"))
 
-    patch_shape = tuple([int(dim) for dim in model.input.shape[-3:]])
+    patch_shape = tuple([int(dim) for dim in [64, 64, 64]]) #model.input.shape[-3:]
     if patch_shape == test_data.shape[-3:]:
         # the model was trained t
         prediction = model.predict(test_data)

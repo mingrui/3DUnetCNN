@@ -16,3 +16,5 @@ data.hdf5
 test_dir
 *.hdr
 *.img
+data/
+prediction/

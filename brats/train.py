@@ -11,20 +11,21 @@ config = dict()
 config["pool_size"] = (2, 2, 2)  # pool size for the max pooling operations
 config["image_shape"] = (144, 144, 144)  # This determines what shape the images will be cropped/resampled to.
 config["patch_shape"] = (64, 64, 64)  # switch to None to train on the whole image
-config["labels"] = (1, 2, 3, 4)  # the label numbers on the input image
+config["labels"] = (1, )  # the label numbers on the input image
 config["n_labels"] = len(config["labels"])
 config["all_modalities"] = ["t1", "t1Gd", "flair", "t2"]
-config["training_modalities"] = config["all_modalities"]  # change this if you want to only use some of the modalities
+config["tiantan_modalities"] = ["t2"]
+config["training_modalities"] = config["tiantan_modalities"]  # change this if you want to only use some of the modalities
 config["nb_channels"] = len(config["training_modalities"])
 if "patch_shape" in config and config["patch_shape"] is not None:
     config["input_shape"] = tuple([config["nb_channels"]] + list(config["patch_shape"]))
 else:
     config["input_shape"] = tuple([config["nb_channels"]] + list(config["image_shape"]))
 config["truth_channel"] = config["nb_channels"]
-config["deconvolution"] = True  # if False, will use upsampling instead of deconvolution
+config["deconvolution"] = False  # if False, will use upsampling instead of deconvolution
 
-config["batch_size"] = 6
-config["validation_batch_size"] = 12
+config["batch_size"] = 3
+config["validation_batch_size"] = 6
 config["n_epochs"] = 500  # cutoff the training after this many epochs
 config["patience"] = 10  # learning rate will be reduced after this many epochs if the validation loss is not improving
 config["early_stop"] = 50  # training will be stopped after this many epochs without the validation loss improving
@@ -45,10 +46,11 @@ config["training_file"] = os.path.abspath("training_ids.pkl")
 config["validation_file"] = os.path.abspath("validation_ids.pkl")
 config["overwrite"] = False  # If True, will previous files. If False, will use previously written files.
 
+config["preprocessed"] = "tiantan_preprocessed" # change this to use different data files
 
 def fetch_training_data_files():
     training_data_files = list()
-    for subject_dir in glob.glob(os.path.join(os.path.dirname(__file__), "data", "preprocessed", "*", "*")):
+    for subject_dir in glob.glob(os.path.join(os.path.dirname(__file__), "data", config["preprocessed"], "*", "*")):
         subject_files = list()
         for modality in config["training_modalities"] + ["truth"]:
             subject_files.append(os.path.join(subject_dir, modality + ".nii.gz"))
