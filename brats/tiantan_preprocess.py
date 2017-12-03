@@ -170,6 +170,7 @@ def convert_truth_to_nii():
         print(file)
 
 if __name__ == "__main__":
+    print('tiantan preprocess')
     #convert_tiantan_data('/media/mingrui/960EVO/datasets/tiantan/20171119NewData/MRIdata_Tiantan/training_tiantan_IDH1', '/media/mingrui/960EVO/workspace/3DUnetCNN/brats/data/tiantan_preprocessed/training_tiantan_IDH1')
     #convert_tiantan_data('/media/mingrui/960EVO/datasets/tiantan/20171119NewData/MRIdata_Tiantan/valid_tiantan_IDH1', '/media/mingrui/960EVO/workspace/3DUnetCNN/brats/data/tiantan_preprocessed/valid_tiantan_IDH1')
-    convert_truth_to_nii()
+    #convert_truth_to_nii()

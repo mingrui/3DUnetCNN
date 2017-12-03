@@ -72,7 +72,7 @@ def prediction_to_image(prediction, affine, label_map=False, threshold=0.5, labe
     if prediction.shape[1] == 1:
         data = prediction[0, 0]
         if label_map:
-            label_map_data = np.zeros(prediction[0, 0].shape, np.int8)
+            label_map_data = np.zeros(prediction[0, 0].shape)#, np.int8)
             if labels:
                 label = labels[0]
             else:
@@ -87,7 +87,7 @@ def prediction_to_image(prediction, affine, label_map=False, threshold=0.5, labe
             return multi_class_prediction(prediction, affine)
     else:
         raise RuntimeError("Invalid prediction array shape: {0}".format(prediction.shape))
-    return nib.Nifti1Image(data, affine)
+    return nib.Nifti1Image(data, affine=affine)
 
 
 def multi_class_prediction(prediction, affine):

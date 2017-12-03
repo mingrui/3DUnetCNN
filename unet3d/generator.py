@@ -56,6 +56,7 @@ def get_training_and_validation_generators(data_file, batch_size, n_labels, trai
                                                           training_file=training_keys_file,
                                                           validation_file=validation_keys_file)
 
+    print("training generator")
     training_generator = data_generator(data_file, training_list,
                                         batch_size=batch_size,
                                         n_labels=n_labels,
@@ -68,6 +69,7 @@ def get_training_and_validation_generators(data_file, batch_size, n_labels, trai
                                         patch_start_offset=training_patch_start_offset,
                                         skip_blank=skip_blank,
                                         permute=permute)
+    print("validation generator")
     validation_generator = data_generator(data_file, validation_list,
                                           batch_size=validation_batch_size,
                                           n_labels=n_labels,
@@ -75,7 +77,7 @@ def get_training_and_validation_generators(data_file, batch_size, n_labels, trai
                                           patch_shape=patch_shape,
                                           patch_overlap=validation_patch_overlap,
                                           skip_blank=skip_blank)
-
+    print("get number of steps")
     # Set the number of training and testing samples per epoch correctly
     num_training_steps = get_number_of_steps(get_number_of_patches(data_file, training_list, patch_shape,
                                                                    skip_blank=skip_blank,
@@ -85,8 +87,7 @@ def get_training_and_validation_generators(data_file, batch_size, n_labels, trai
 
     num_validation_steps = get_number_of_steps(get_number_of_patches(data_file, validation_list, patch_shape,
                                                                      skip_blank=skip_blank,
-                                                                     patch_overlap=validation_patch_overlap),
-                                               validation_batch_size)
+                                                                     patch_overlap=validation_patch_overlap), validation_batch_size)
     print("Number of validation steps: ", num_validation_steps)
 
     return training_generator, validation_generator, num_training_steps, num_validation_steps

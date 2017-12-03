@@ -143,7 +143,7 @@ def convert_brats_data(brats_folder, out_folder, overwrite=False, no_bias_correc
     or tuple.
     :return:
     """
-    for subject_folder in glob.glob(os.path.join(brats_folder, "*", "*")):
+    for subject_folder in glob.glob(os.path.join(brats_folder, "*")):
         if os.path.isdir(subject_folder):
             subject = os.path.basename(subject_folder)
             new_subject_folder = os.path.join(out_folder, os.path.basename(os.path.dirname(subject_folder)),
@@ -153,3 +153,7 @@ def convert_brats_data(brats_folder, out_folder, overwrite=False, no_bias_correc
                     os.makedirs(new_subject_folder)
                 convert_brats_folder(subject_folder, new_subject_folder,
                                      no_bias_correction_modalities=no_bias_correction_modalities)
+if __name__ == '__main__':
+    print('preprocess')
+    #convert_brats_data('/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/data/brats_2017_original/Pre-operative_TCGA_GBM_NIfTI_and_Segmentations', '/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/data/brats_2017_preprocessed/')
+    #convert_brats_data('/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/data/brats_2017_original/Pre-operative_TCGA_LGG_NIfTI_and_Segmentations', '/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/data/brats_2017_preprocessed/')

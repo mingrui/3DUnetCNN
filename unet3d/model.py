@@ -8,8 +8,6 @@ from .metrics import dice_coef_loss, get_label_dice_coefficient_function, dice_c
 
 K.set_image_data_format("channels_first")
 
-from keras_contrib.layers import convolutional
-
 try:
     from keras.engine import merge
 except ImportError:
