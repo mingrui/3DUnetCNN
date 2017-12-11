@@ -221,7 +221,7 @@ def add_data(x_list, y_list, data_file, index, augment=False, augment_flip=False
                              "the same length.")
         data, truth = random_permutation_x_y(data, truth[np.newaxis])
     else:
-        truth = truth[np.newaxis]
+        truth = truth #[np.newaxis] #idh1 no [np.newaxis]
 
     if not skip_blank or np.any(truth != 0):
         x_list.append(data)
@@ -235,7 +235,12 @@ def get_data_from_file(data_file, index, patch_shape=None):
         x = get_patch_from_3d_data(data, patch_shape, patch_index)
         y = get_patch_from_3d_data(truth, patch_shape, patch_index)
     else:
-        x, y = data_file.root.data[index], data_file.root.truth[index, 0]
+        #print(data_file.root.idh1[index])
+        #print(np.transpose(data_file.root.idh1[index]))
+        #print("+++++++++++++++++++++++++++++++++")
+        #x, y = data_file.root.data[index], data_file.root.truth[index, 0]
+
+        x, y = data_file.root.data[index], data_file.root.idh1[index] #idh1
     return x, y
 
 

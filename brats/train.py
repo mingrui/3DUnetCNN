@@ -9,8 +9,8 @@ from unet3d.training import load_old_model, train_model
 
 config = dict()
 config["pool_size"] = (2, 2, 2)  # pool size for the max pooling operations
-config["image_shape"] = (144, 144, 144)  # This determines what shape the images will be cropped/resampled to.
-config["patch_shape"] = (64, 64, 64)  # switch to None to train on the whole image
+config["image_shape"] = (128, 128, 24)  # This determines what shape the images will be cropped/resampled to.
+config["patch_shape"] = None #(128, 128, 24)#None#(16, 16, 62)  # switch to None to train on the whole image
 config["labels"] = (1, )  # the label numbers on the input image
 config["n_labels"] = len(config["labels"])
 config["all_modalities"] = ["t1", "t1Gd", "flair", "t2"]
@@ -24,16 +24,16 @@ else:
 config["truth_channel"] = config["nb_channels"]
 config["deconvolution"] = False  # if False, will use upsampling instead of deconvolution
 
-config["batch_size"] = 3
+config["batch_size"] = 2
 config["validation_batch_size"] = 6
 config["n_epochs"] = 500  # cutoff the training after this many epochs
-config["patience"] = 10  # learning rate will be reduced after this many epochs if the validation loss is not improving
+config["patience"] = 5  # learning rate will be reduced after this many epochs if the validation loss is not improving
 config["early_stop"] = 50  # training will be stopped after this many epochs without the validation loss improving
 config["initial_learning_rate"] = 0.00001
 config["learning_rate_drop"] = 0.5  # factor by which the learning rate will be reduced
 config["validation_split"] = 0.8  # portion of the data that will be used for training
 config["flip"] = False  # augments the data by randomly flipping an axis during
-config["permute"] = True  # data shape must be a cube. Augments the data by permuting in various directions
+config["permute"] = False  # data shape must be a cube. Augments the data by permuting in various directions
 config["distort"] = None  # switch to None if you want no distortion
 config["augment"] = config["flip"] or config["distort"]
 config["validation_patch_overlap"] = 0  # if > 0, during training, validation patches will be overlapping
@@ -41,12 +41,12 @@ config["training_patch_start_offset"] = (16, 16, 16)  # randomly offset the firs
 config["skip_blank"] = True  # if True, then patches without any target will be skipped
 
 config["data_file"] = os.path.abspath("brats_data.h5")
-config["model_file"] = os.path.abspath("tumor_segmentation_model.h5")
+config["model_file"] = os.path.abspath("tumor_segmentation_model_tiantan.h5")
 config["training_file"] = os.path.abspath("training_ids.pkl")
 config["validation_file"] = os.path.abspath("validation_ids.pkl")
 config["overwrite"] = False  # If True, will previous files. If False, will use previously written files.
 
-config["preprocessed"] = "tiantan_preprocessed" # change this to use different data files
+config["preprocessed"] = "tiantan_only" # change this to use different data files
 
 def fetch_training_data_files():
     training_data_files = list()
@@ -74,7 +74,8 @@ def main(overwrite=False):
                               pool_size=config["pool_size"],
                               n_labels=config["n_labels"],
                               initial_learning_rate=config["initial_learning_rate"],
-                              deconvolution=config["deconvolution"])
+                              deconvolution=config["deconvolution"],
+                              batch_normalization=True)
 
     # get training and testing generators
     train_generator, validation_generator, n_train_steps, n_validation_steps = get_training_and_validation_generators(
