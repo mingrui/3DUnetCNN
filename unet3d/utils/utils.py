@@ -63,9 +63,12 @@ def fix_shape(image):
 
 def resize(image, new_shape, interpolation="continuous"):
     input_shape = np.asarray(image.shape, dtype=np.float16)
+    #print("input_shape: {}".format(input_shape))
     ras_image = reorder_img(image, resample=interpolation)
     output_shape = np.asarray(new_shape)
+    #print("output_shape: {}".format(output_shape))
     new_spacing = input_shape/output_shape
+    #print("new_spacing: {}".format(new_spacing))
     new_affine = np.copy(ras_image.affine)
     new_affine[:3, :3] = ras_image.affine[:3, :3] * np.diag(new_spacing)
     return resample_img(ras_image, target_affine=new_affine, target_shape=output_shape, interpolation=interpolation)

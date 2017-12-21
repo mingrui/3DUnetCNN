@@ -63,6 +63,7 @@ def test_convert_image_to_nii():
     res = btr.run()
 
 
+
 def convert_brats_truth(truth_path, out_path):
     img = nib.load(truth_path)
     img_data = img.get_data()

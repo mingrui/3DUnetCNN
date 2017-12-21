@@ -116,12 +116,21 @@ def normalize_image(in_file, out_file, bias_correction=True):
         shutil.copy(in_file, out_file)
     return out_file
 
+def lowercase_all_names():
+    folder_path = '/media/mingrui/960EVO/datasets/tiantan/2017-12-TCGA-tiantan-IDH/TCGA-LGG-T2/*'
 
-def convert_tiantan_folder(in_folder, out_folder, truth_name="tu",
+    for subject_folder in glob.glob(folder_path):
+        for subject in glob.glob(os.path.join(subject_folder, '*')):
+            if 'T2' in os.path.basename(subject):
+                os.rename(subject, os.path.join(subject_folder, os.path.basename(subject).lower()))
+            elif 'TU' in os.path.basename(subject):
+                os.rename(subject, os.path.join(subject_folder, os.path.basename(subject).lower()))
+
+def convert_tcga_folder(in_folder, out_folder, truth_name="tu",
                          no_bias_correction_modalities=None):
     for name in ["t2"]:
         image_file = get_image(in_folder, name)
-        out_file = os.path.abspath(os.path.join(out_folder, name + ".nii.gz"))
+        out_file = os.path.abspath(os.path.join(out_folder, name.lower() + ".nii.gz"))
         perform_bias_correction = no_bias_correction_modalities and name not in no_bias_correction_modalities
         normalize_image(image_file, out_file, bias_correction=perform_bias_correction)
     # copy the truth file
@@ -132,10 +141,10 @@ def convert_tiantan_folder(in_folder, out_folder, truth_name="tu",
     out_file = os.path.abspath(os.path.join(out_folder, "truth.nii.gz"))
     #shutil.copy(truth_file, out_file)
     convert_image_format(truth_file, out_file)
-    check_origin(out_file, get_image(in_folder, ["t2"][0]))
+    check_origin(out_file, get_image(in_folder, ["tu"][0]))
 
 
-def convert_tiantan_data(tiantan_folder, out_folder, overwrite=False, no_bias_correction_modalities=("flair",)):
+def convert_tcga_data(tiantan_folder, out_folder, overwrite=False, no_bias_correction_modalities=("flair",)):
     """
     Preprocesses the BRATS data and writes it to a given output folder. Assumes the original folder structure.
     :param tiantan_folder: folder containing the original brats data
@@ -154,78 +163,10 @@ def convert_tiantan_data(tiantan_folder, out_folder, overwrite=False, no_bias_co
             if not os.path.exists(new_subject_folder) or overwrite:
                 if not os.path.exists(new_subject_folder):
                     os.makedirs(new_subject_folder)
-                convert_tiantan_folder(subject_folder, new_subject_folder,
+                convert_tcga_folder(subject_folder, new_subject_folder,
                                      no_bias_correction_modalities=no_bias_correction_modalities)
 
-def convert_truth_to_nii():
-    """
-    nibabel complains truth file is not nii
-    :return:
-    """
-    training_data_files = list()
-    for subject_dir in glob.glob(os.path.join(os.path.dirname(__file__), "data", config["preprocessed"], "*", "*")):
-        subject = (os.path.join(subject_dir, "truth.nii.gz"))
-        training_data_files.append(subject)
-    for file in training_data_files:
-        file = os.path.join('/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/', file)
-        convert_image_format(file, file)
-        print(file)
-
-# doesn't work very well about 0.60
-def fill_to_24_slices():
-    data_files = list()
-    for subject_dir in glob.glob(os.path.join(os.path.dirname(__file__), "data", config["preprocessed"], "*", "*")):
-        for subject in glob.glob(os.path.join(subject_dir, "*")):
-            data_files.append(subject)
-    for file in data_files:
-        file = os.path.join('/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/', file)
-        img = nib.load(file)
-        img_data = img.get_data()
-        if img_data.shape[2] < 24:
-            print("smaller than 24: " + file)
-            layer_shape = img_data[:,:,0].shape
-            img_data = np.dstack((img_data, np.zeros(layer_shape)))
-            new_img =  nib.Nifti1Image(img_data,affine=img.affine)
-            nib.save(new_img, file)
-        elif img_data.shape[2] > 24:
-            print("larger than 24: " + file)
-            start = img_data.shape[2] - 24
-            print(img_data[:,:,start:].shape)
-            new_img = nib.Nifti1Image(img_data[:,:,start:], affine=img.affine)
-            nib.save(new_img, file)
-
-def convert_new_data():
-    new_data_path = '/media/mingrui/960EVO/datasets/tiantan/new_data_201712/*/*/*'
-
-    subject_list= []
-    for subject_dir in glob.glob(new_data_path):
-        t2_list = []
-        for subject_file in glob.glob(os.path.join(subject_dir, '*')):
-            if '/T2.nii' in subject_file:
-                t2_list.append(subject_file)
-            elif '/T2U.nii' in subject_file:
-                t2_list.append(subject_file)
-        if len(t2_list) == 2:
-            subject_list.append(t2_list)
-    print(len(subject_list))
-
-    # make new folder
-    new_folder_path = '/media/mingrui/960EVO/datasets/tiantan/new_data_201712/clean/'
-    for i, t2_list in enumerate(subject_list):
-        new_path = os.path.join(new_folder_path, str(i))
-        os.mkdir(new_path)
-        for t2_file in t2_list:
-            if '/T2.nii' in t2_file:
-                shutil.copyfile(t2_file, os.path.join(new_path, 't2.nii'))
-            elif '/T2U.nii' in t2_file:
-                shutil.copyfile(t2_file, os.path.join(new_path, 'tu.nii'))
-
-
 if __name__ == "__main__":
-    print('tiantan preprocess')
-    #convert_truth_to_nii()
-    #fill_to_24_slices()
-    #convert_new_data()
-    #convert_tiantan_data('/media/mingrui/960EVO/datasets/tiantan/2017-11/training_tiantan_IDH1', '/media/mingrui/960EVO/datasets/tiantan/2017-11/tiantan_preprocessed/')
-    #convert_tiantan_data('/media/mingrui/960EVO/datasets/tiantan/2017-11/valid_tiantan_IDH1', '/media/mingrui/960EVO/datasets/tiantan/2017-11/tiantan_preprocessed/')
-    #convert_tiantan_data('/media/mingrui/960EVO/datasets/tiantan/2017-12/clean', '/media/mingrui/960EVO/datasets/tiantan/2017-12//tiantan_preprocessed/')
+    print('tcga preprocess')
+    #lowercase_all_names()
+    #convert_tcga_data('/media/mingrui/960EVO/datasets/tiantan/2017-12-TCGA-tiantan-IDH/TCGA-LGG-T2', '/media/mingrui/960EVO/datasets/tiantan/2017-12-TCGA-tiantan-IDH/tcga_t2_preprocessed')
