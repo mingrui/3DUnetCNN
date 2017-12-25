@@ -1,10 +1,10 @@
 import numpy as np
 from keras import backend as K
 from keras.engine import Input, Model
-from keras.layers import Conv3D, MaxPooling3D, UpSampling3D, Activation, BatchNormalization, PReLU
+from keras.layers import Conv3D, MaxPooling3D, UpSampling3D, Activation, BatchNormalization, PReLU, Deconvolution3D
 from keras.optimizers import Adam
 
-from .metrics import dice_coef_loss, get_label_dice_coefficient_function, dice_coef
+from unet3d.metrics import dice_coefficient_loss, get_label_dice_coefficient_function, dice_coefficient
 
 K.set_image_data_format("channels_first")
 
@@ -15,8 +15,8 @@ except ImportError:
 
 
 def unet_model_3d(input_shape, pool_size=(2, 2, 2), n_labels=1, initial_learning_rate=0.00001, deconvolution=False,
-                  depth=4, n_base_filters=32, include_label_wise_dice_coefficients=False, metrics=dice_coef,
-                  batch_normalization=False):
+                  depth=4, n_base_filters=32, include_label_wise_dice_coefficients=False, metrics=dice_coefficient,
+                  batch_normalization=False, activation_name="sigmoid"):
     """
     Builds the 3D UNet Keras model.f
     :param metrics: List metrics to be calculated during model training (default is dice coefficient).
@@ -55,9 +55,8 @@ def unet_model_3d(input_shape, pool_size=(2, 2, 2), n_labels=1, initial_learning
 
     # add levels with up-convolution or up-sampling
     for layer_depth in range(depth-2, -1, -1):
-        up_convolution = get_up_convolution(pool_size=pool_size, deconvolution=deconvolution, depth=layer_depth,
-                                            n_filters=current_layer._keras_shape[1],
-                                            image_shape=input_shape[-3:])(current_layer)
+        up_convolution = get_up_convolution(pool_size=pool_size, deconvolution=deconvolution,
+                                            n_filters=current_layer._keras_shape[1])(current_layer)
         concat = concatenate([up_convolution, levels[layer_depth][1]], axis=1)
         current_layer = create_convolution_block(n_filters=levels[layer_depth][1]._keras_shape[1],
                                                  input_layer=concat, batch_normalization=batch_normalization)
@@ -66,7 +65,7 @@ def unet_model_3d(input_shape, pool_size=(2, 2, 2), n_labels=1, initial_learning
                                                  batch_normalization=batch_normalization)
 
     final_convolution = Conv3D(n_labels, (1, 1, 1))(current_layer)
-    act = Activation('sigmoid')(final_convolution)
+    act = Activation(activation_name)(final_convolution)
     model = Model(inputs=inputs, outputs=act)
 
     if not isinstance(metrics, list):
@@ -79,14 +78,15 @@ def unet_model_3d(input_shape, pool_size=(2, 2, 2), n_labels=1, initial_learning
         else:
             metrics = label_wise_dice_metrics
 
-    model.compile(optimizer=Adam(lr=initial_learning_rate), loss=dice_coef_loss, metrics=metrics)
+    model.compile(optimizer=Adam(lr=initial_learning_rate), loss=dice_coefficient_loss, metrics=metrics)
     return model
 
 
 def create_convolution_block(input_layer, n_filters, batch_normalization=False, kernel=(3, 3, 3), activation=None,
-                             padding='same'):
+                             padding='same', strides=(1, 1, 1), instance_normalization=False):
     """
 
+    :param strides:
     :param input_layer:
     :param n_filters:
     :param batch_normalization:
@@ -95,9 +95,16 @@ def create_convolution_block(input_layer, n_filters, batch_normalization=False, 
     :param padding:
     :return:
     """
-    layer = Conv3D(n_filters, kernel, padding=padding)(input_layer)
+    layer = Conv3D(n_filters, kernel, padding=padding, strides=strides)(input_layer)
     if batch_normalization:
         layer = BatchNormalization(axis=1)(layer)
+    elif instance_normalization:
+        try:
+            from keras_contrib.layers.normalization import InstanceNormalization
+        except ImportError:
+            raise ImportError("Install keras_contrib in order to use instance normalization."
+                              "\nTry: pip install git+https://www.github.com/farizrahman4u/keras-contrib.git")
+        layer = InstanceNormalization(axis=1)(layer)
     if activation is None:
         return Activation('relu')(layer)
     else:
@@ -118,21 +125,10 @@ def compute_level_output_shape(n_filters, depth, pool_size, image_shape):
     return tuple([None, n_filters] + output_image_shape)
 
 
-def get_up_convolution(depth, n_filters, pool_size, image_shape, kernel_size=(2, 2, 2), strides=(2, 2, 2),
+def get_up_convolution(n_filters, pool_size, kernel_size=(2, 2, 2), strides=(2, 2, 2),
                        deconvolution=False):
     if deconvolution:
-        try:
-            from keras_contrib.layers import Deconvolution3D
-        except ImportError:
-            raise ImportError("Install keras_contrib in order to use deconvolution. Otherwise set deconvolution=False."
-                              "\nTry: pip install git+https://www.github.com/farizrahman4u/keras-contrib.git")
-
         return Deconvolution3D(filters=n_filters, kernel_size=kernel_size,
-                               output_shape=compute_level_output_shape(n_filters=n_filters, depth=depth,
-                                                                       pool_size=pool_size, image_shape=image_shape),
-                               strides=strides, input_shape=compute_level_output_shape(n_filters=n_filters,
-                                                                                       depth=depth,
-                                                                                       pool_size=pool_size,
-                                                                                       image_shape=image_shape))
+                               strides=strides)
     else:
         return UpSampling3D(size=pool_size)
