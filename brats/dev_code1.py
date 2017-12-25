@@ -65,9 +65,9 @@ def classification_model(model_file):
     x = BatchNormalization(axis=1, name='batch_normalization_4')(x)
     x = Activation('relu', name='activation_5')(x)
 
-    x = Conv3D(512, (3, 3, 3),  padding='same', name='conv3d_10')(x)
-    x = BatchNormalization(axis=1, name='batch_normalization_5')(x)
-    x = Activation('relu', name='activation_6')(x)
+    # x = Conv3D(512, (3, 3, 3),  padding='same', name='conv3d_10')(x)
+    # x = BatchNormalization(axis=1, name='batch_normalization_5')(x)
+    # x = Activation('relu', name='activation_6')(x)
 
     x = MaxPooling3D(pool_size=(2, 2, 2), name='max_pooling3d_5', padding='same')(x)
 
@@ -76,16 +76,16 @@ def classification_model(model_file):
     x = BatchNormalization(axis=1, name='batch_normalization_6')(x)
     x = Activation('relu', name='activation_7')(x)
 
-    x = Conv3D(1024, (3, 3, 3), padding='same', name='conv3d_12')(x)
-    x = BatchNormalization(axis=1, name='batch_normalization_7')(x)
-    x = Activation('relu', name='activation_8')(x)
+    # x = Conv3D(1024, (3, 3, 3), padding='same', name='conv3d_12')(x)
+    # x = BatchNormalization(axis=1, name='batch_normalization_7')(x)
+    # x = Activation('relu', name='activation_8')(x)
 
     x = MaxPooling3D(pool_size=(2, 2, 2), name='max_pooling3d_6')(x)
 
 
-    x = Conv3D(2048, (3, 3, 3), padding='same', name='conv3d_13')(x)
-    x = BatchNormalization(axis=1, name='batch_normalization_8')(x)
-    x = Activation('relu', name='activation_9')(x)
+    # x = Conv3D(2048, (3, 3, 3), padding='same', name='conv3d_13')(x)
+    # x = BatchNormalization(axis=1, name='batch_normalization_8')(x)
+    # x = Activation('relu', name='activation_9')(x)
 
     x = Conv3D(2048, (3, 3, 3), padding='same', name='conv3d_14')(x)
     x = BatchNormalization(axis=1, name='batch_normalization_9')(x)
@@ -99,12 +99,14 @@ def classification_model(model_file):
     model_final = Model(input= old_model.input, output=predictions)
     #model_final.compile(loss='categorical_crossentropy', optimizer=optimizers.SGD(lr=0.001, momentum=0.8, decay=0.8),metrics=['accuracy'])
     print('Adam Optimizer')
-    model_final.compile(loss='categorical_crossentropy', optimizer=Adam(lr=0.00001),
-                        metrics=['accuracy'])
-    #print model_final
     for layer in model_final.layers[:12]:
         print(layer.output)
         layer.trainable = False
+
+    model_final.compile(loss='categorical_crossentropy', optimizer=Adam(lr=0.00001),
+                        metrics=['accuracy'])
+    #print model_final
+
     # for layer in model_final.layers:
     #     print(layer.output)
     return model_final
