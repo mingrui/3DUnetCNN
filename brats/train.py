@@ -27,7 +27,7 @@ config["deconvolution"] = True  # if False, will use upsampling instead of decon
 config["batch_size"] = 8
 config["validation_batch_size"] = 6
 config["n_epochs"] = 500  # cutoff the training after this many epochs
-config["patience"] = 10  # learning rate will be reduced after this many epochs if the validation loss is not improving
+config["patience"] = 5  # learning rate will be reduced after this many epochs if the validation loss is not improving
 config["early_stop"] = 50  # training will be stopped after this many epochs without the validation loss improving
 config["initial_learning_rate"] = 0.0001
 config["learning_rate_drop"] = 0.5  # factor by which the learning rate will be reduced
@@ -75,6 +75,7 @@ def main(overwrite=False):
         model = load_old_model(config["model_file"])
     else:
         # instantiate new model
+        print("BN:")
         model = unet_model_3d(input_shape=config["input_shape"],
                               pool_size=config["pool_size"],
                               n_labels=config["n_labels"],

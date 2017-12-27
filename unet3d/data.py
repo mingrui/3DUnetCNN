@@ -2,9 +2,11 @@ import os
 
 import numpy as np
 import tables
+from brats.tiantan_train_data_reader import prepare_for_target
 
 from .normalize import normalize_data_storage, reslice_image_set
 
+TARGET_DICT = prepare_for_target()
 
 def create_data_file(out_file, n_channels, n_samples, image_shape):
     hdf5_file = tables.open_file(out_file, mode='w')
@@ -17,23 +19,40 @@ def create_data_file(out_file, n_channels, n_samples, image_shape):
                                             filters=filters, expectedrows=n_samples)
     affine_storage = hdf5_file.create_earray(hdf5_file.root, 'affine', tables.Float32Atom(), shape=(0, 4, 4),
                                              filters=filters, expectedrows=n_samples)
-    return hdf5_file, data_storage, truth_storage, affine_storage
+    idh1_storage = hdf5_file.create_earray(hdf5_file.root, 'idh1', tables.Float32Atom(), shape=(0, 2),
+                                             filters=filters, expectedrows=n_samples)  # idh1
+    return hdf5_file, data_storage, truth_storage, affine_storage, idh1_storage
 
 
 def write_image_data_to_file(image_files, data_storage, truth_storage, image_shape, n_channels, affine_storage,
                              truth_dtype=np.uint8):
     for set_of_files in image_files:
+
         images = reslice_image_set(set_of_files, image_shape, label_indices=len(set_of_files) - 1)
         subject_data = [image.get_data() for image in images]
         add_data_to_storage(data_storage, truth_storage, affine_storage, subject_data, images[0].affine, n_channels,
                             truth_dtype)
+
     return data_storage, truth_storage
+
+
+def write_classification_mark_data_to_file(image_files, idh1_storage): # idh1
+    for set_of_files in image_files:
+
+        image_file_name = set_of_files[0].split('/')[-2]
+        add_classification_mark_to_storage(idh1_storage, TARGET_DICT[image_file_name])
+
+    return idh1_storage
 
 
 def add_data_to_storage(data_storage, truth_storage, affine_storage, subject_data, affine, n_channels, truth_dtype):
     data_storage.append(np.asarray(subject_data[:n_channels])[np.newaxis])
     truth_storage.append(np.asarray(subject_data[n_channels], dtype=truth_dtype)[np.newaxis][np.newaxis])
     affine_storage.append(np.asarray(affine)[np.newaxis])
+
+
+def add_classification_mark_to_storage(idh1_storage, target):
+    idh1_storage.append(np.asarray(target)[np.newaxis])
 
 
 def write_data_to_file(training_data_files, out_file, image_shape, truth_dtype=np.uint8):
@@ -52,7 +71,7 @@ def write_data_to_file(training_data_files, out_file, image_shape, truth_dtype=n
     n_channels = len(training_data_files[0]) - 1
 
     try:
-        hdf5_file, data_storage, truth_storage, affine_storage = create_data_file(out_file, n_channels=n_channels,
+        hdf5_file, data_storage, truth_storage, affine_storage, idh1_storage = create_data_file(out_file, n_channels=n_channels,
                                                                                   n_samples=n_samples,
                                                                                   image_shape=image_shape)
     except Exception as e:
@@ -62,6 +81,7 @@ def write_data_to_file(training_data_files, out_file, image_shape, truth_dtype=n
 
     write_image_data_to_file(training_data_files, data_storage, truth_storage, image_shape,
                              truth_dtype=truth_dtype, n_channels=n_channels, affine_storage=affine_storage)
+    #write_classification_mark_data_to_file(training_data_files, idh1_storage)  #idh1
     normalize_data_storage(data_storage)
     hdf5_file.close()
     return out_file
