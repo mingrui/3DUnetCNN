@@ -8,6 +8,7 @@ import numpy as np
 from .utils import pickle_dump, pickle_load
 from .utils.patches import compute_patch_indices, get_random_nd_index, get_patch_from_3d_data
 from .augment import augment_data, random_permutation_x_y
+from brats.config import *
 
 
 def get_training_and_validation_generators(data_file, batch_size, n_labels, training_keys_file, validation_keys_file,
@@ -222,7 +223,10 @@ def add_data(x_list, y_list, data_file, index, augment=False, augment_flip=False
                              "the same length.")
         data, truth = random_permutation_x_y(data, truth[np.newaxis])
     else:
-        truth = truth[np.newaxis] #idh1 no [np.newaxis]
+        if config["segmentation_mode"]:
+            truth = truth[np.newaxis] #idh1 no [np.newaxis]
+        else:
+            truth = truth
 
     if not skip_blank or np.any(truth != 0):
         x_list.append(data)
@@ -236,12 +240,10 @@ def get_data_from_file(data_file, index, patch_shape=None):
         x = get_patch_from_3d_data(data, patch_shape, patch_index)
         y = get_patch_from_3d_data(truth, patch_shape, patch_index)
     else:
-        #print(data_file.root.idh1[index])
-        #print(np.transpose(data_file.root.idh1[index]))
-        #print("+++++++++++++++++++++++++++++++++")
-        x, y = data_file.root.data[index], data_file.root.truth[index, 0]
-
-        #x, y = data_file.root.data[index], data_file.root.idh1[index] #idh1
+        if config["segmentation_mode"]:
+            x, y = data_file.root.data[index], data_file.root.truth[index, 0]
+        else:
+            x, y = data_file.root.data[index], data_file.root.idh1[index] #idh1
     return x, y
 
 

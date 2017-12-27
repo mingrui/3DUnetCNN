@@ -5,6 +5,7 @@ import tables
 from brats.tiantan_train_data_reader import prepare_for_target
 
 from .normalize import normalize_data_storage, reslice_image_set
+from brats.config import *
 
 TARGET_DICT = prepare_for_target()
 
@@ -81,7 +82,8 @@ def write_data_to_file(training_data_files, out_file, image_shape, truth_dtype=n
 
     write_image_data_to_file(training_data_files, data_storage, truth_storage, image_shape,
                              truth_dtype=truth_dtype, n_channels=n_channels, affine_storage=affine_storage)
-    #write_classification_mark_data_to_file(training_data_files, idh1_storage)  #idh1
+    if not config["segmentation_mode"]:
+        write_classification_mark_data_to_file(training_data_files, idh1_storage)  #idh1
     normalize_data_storage(data_storage)
     hdf5_file.close()
     return out_file

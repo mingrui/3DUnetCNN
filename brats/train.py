@@ -9,8 +9,8 @@ from unet3d.training import load_old_model, train_model
 
 config = dict()
 config["pool_size"] = (2, 2, 2)  # pool size for the max pooling operations
-config["image_shape"] = (256, 256, 24)  # This determines what shape the images will be cropped/resampled to.
-config["patch_shape"] = (64, 64, 24)  # switch to None to train on the whole image
+config["image_shape"] = (128, 128, 24)#(256, 256, 24)  # This determines what shape the images will be cropped/resampled to.
+config["patch_shape"] = None # (64, 64, 24)  # switch to None to train on the whole image
 config["labels"] = (1, )  # the label numbers on the input image
 config["n_labels"] = len(config["labels"])
 config["all_modalities"] = ["t1", "t1Gd", "flair", "t2"]
@@ -40,7 +40,7 @@ config["validation_patch_overlap"] = 0  # if > 0, during training, validation pa
 config["training_patch_start_offset"] = (16, 16, 16)  # randomly offset the first patch index by up to this offset
 config["skip_blank"] = True  # if True, then patches without any target will be skipped
 
-config["data_file"] = os.path.abspath("brats_data.h5")
+config["data_file"] = os.path.abspath("tiantan_data_classification.h5")
 config["model_file"] = os.path.abspath("tumor_segmentation_model.h5")
 #config["model_file"] = os.path.abspath("/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/20171201/tumor_segmentation_model.h5")
 config["training_file"] = os.path.abspath("training_ids.pkl")
@@ -48,7 +48,7 @@ config["validation_file"] = os.path.abspath("validation_ids.pkl")
 config["overwrite"] = True  # If True, will previous files. If False, will use previously written files.
 
 #config["preprocessed"] = "tiantan_skull_strip" # change this to use different data files
-config["preprocessed"] = "tiantan_preprocessed" # change this to use different data files
+config["preprocessed"] = "tiantan_only" # change this to use different data files
 #config["preprocessed"] = "preprocessed_test" # test data
 #config["preprocessed"] = "brats_2017_preprocessed" # brats data
 #config["preprocessed"] = "201712_new" # tiantan new december 2017 data
