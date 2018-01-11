@@ -10,11 +10,11 @@ def prepare_for_target():
     one_hot = [[1,0],[0,1]]
     targets = {}
     #sum_of_target = 0
-    trainings = read_in_gene_file('data/training_tiantan.csv')
+    trainings = read_in_gene_file('/media/brainteam/hdd1/TiantanData/2017-11/training_tiantan.csv')
     for i in range(1,len(trainings)):
         targets[trainings[i][1]] = one_hot[int(trainings[i][6])]
         #sum_of_target += int(trainings[i][6])
-    valids = read_in_gene_file('data/valid_tiantan.csv')
+    valids = read_in_gene_file('/media/brainteam/hdd1/TiantanData/2017-11/valid_tiantan.csv')
     for i in range(1,len(valids)):
         targets[valids[i][1]] = one_hot[int(valids[i][2])]
         #sum_of_target += int(valids[i][2])

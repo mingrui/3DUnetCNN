@@ -41,4 +41,4 @@ config["overwrite"] = False  # If True, will previous files. If False, will use 
 
 config["preprocessed"] = "tiantan_only" # change this to use different data files
 
-config["segmentation_mode"] = False # True for segmentation, False for classification
+config["segmentation_mode"] = True # True for segmentation, False for classification
