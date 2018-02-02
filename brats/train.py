@@ -48,11 +48,11 @@ config["training_file"] = os.path.abspath("training_ids.pkl")
 config["validation_file"] = os.path.abspath("validation_ids.pkl")
 config["overwrite"] = True# If True, will previous files. If False, will use previously written files.
 
+config["preprocessed"] = "preprocessed_test" # test data
 #config["preprocessed"] = "tiantan_skull_strip" # change this to use different data files
 if machine == 'brainteam':
     config["preprocessed"] = "/media/brainteam/hdd1/TiantanData/2017-11/tiantan_preprocessed" # change this to use different data files
 #config["preprocessed"] = "tiantan_201712_preprocessed" # change this to use different data files
-#config["preprocessed"] = "preprocessed_test" # test data
 #config["preprocessed"] = "brats_2017_preprocessed" # brats data
 #config["preprocessed"] = "201712_new" # tiantan new december 2017 data
 
