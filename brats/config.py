@@ -3,6 +3,7 @@
 import os
 
 machine = 'brainteam'
+#machine = 'mingrui'
 
 config = dict()
 config["pool_size"] = (2, 2, 2)  # pool size for the max pooling operations
