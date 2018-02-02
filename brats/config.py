@@ -1,3 +1,5 @@
+# setting for classification
+
 import os
 
 config = dict()
