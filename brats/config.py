@@ -2,6 +2,8 @@
 
 import os
 
+machine = 'brainteam'
+
 config = dict()
 config["pool_size"] = (2, 2, 2)  # pool size for the max pooling operations
 config["image_shape"] = (128, 128, 24)  # This determines what shape the images will be cropped/resampled to.

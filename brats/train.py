@@ -5,7 +5,7 @@ from unet3d.data import write_data_to_file, open_data_file
 from unet3d.generator import get_training_and_validation_generators
 from unet3d.model import unet_model_3d
 from unet3d.training import load_old_model, train_model
-
+from config import machine
 
 config = dict()
 config["pool_size"] = (2, 2, 2)  # pool size for the max pooling operations
@@ -24,8 +24,8 @@ else:
 config["truth_channel"] = config["nb_channels"]
 config["deconvolution"] = True  # if False, will use upsampling instead of deconvolution
 
-config["batch_size"] = 8
-config["validation_batch_size"] = 12
+config["batch_size"] = 4
+config["validation_batch_size"] = 6
 config["n_epochs"] = 500  # cutoff the training after this many epochs
 config["patience"] = 30  # learning rate will be reduced after this many epochs if the validation loss is not improving
 config["early_stop"] = 50  # training will be stopped after this many epochs without the validation loss improving
@@ -49,7 +49,8 @@ config["validation_file"] = os.path.abspath("validation_ids.pkl")
 config["overwrite"] = True# If True, will previous files. If False, will use previously written files.
 
 #config["preprocessed"] = "tiantan_skull_strip" # change this to use different data files
-config["preprocessed"] = "/media/brainteam/hdd1/TiantanData/2017-11/tiantan_preprocessed" # change this to use different data files
+if machine == 'brainteam':
+    config["preprocessed"] = "/media/brainteam/hdd1/TiantanData/2017-11/tiantan_preprocessed" # change this to use different data files
 #config["preprocessed"] = "tiantan_201712_preprocessed" # change this to use different data files
 #config["preprocessed"] = "preprocessed_test" # test data
 #config["preprocessed"] = "brats_2017_preprocessed" # brats data
