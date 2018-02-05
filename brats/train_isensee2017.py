@@ -9,7 +9,7 @@ from unet3d.training import load_old_model, train_model
 from config import machine
 
 config = dict()
-config["image_shape"] = (128, 128, 128)  # This determines what shape the images will be cropped/resampled to.
+config["image_shape"] = (256, 256, 24)  # This determines what shape the images will be cropped/resampled to.
 config["patch_shape"] = None  # switch to None to train on the whole image
 config["labels"] = (1, )  # the label numbers on the input image
 config["n_base_filters"] = 16
@@ -24,8 +24,8 @@ else:
 config["truth_channel"] = config["nb_channels"]
 config["deconvolution"] = True  # if False, will use upsampling instead of deconvolution
 
-config["batch_size"] = 1
-config["validation_batch_size"] = 2
+config["batch_size"] = 2
+config["validation_batch_size"] = 4
 config["n_epochs"] = 500  # cutoff the training after this many epochs
 config["patience"] = 10  # learning rate will be reduced after this many epochs if the validation loss is not improving
 config["early_stop"] = 50  # training will be stopped after this many epochs without the validation loss improving
@@ -33,7 +33,7 @@ config["initial_learning_rate"] = 5e-4
 config["learning_rate_drop"] = 0.5  # factor by which the learning rate will be reduced
 config["validation_split"] = 0.8  # portion of the data that will be used for training
 config["flip"] = False  # augments the data by randomly flipping an axis during
-config["permute"] = True  # data shape must be a cube. Augments the data by permuting in various directions
+config["permute"] = False  # data shape must be a cube. Augments the data by permuting in various directions
 config["distort"] = None  # switch to None if you want no distortion
 config["augment"] = config["flip"] or config["distort"]
 config["validation_patch_overlap"] = 0  # if > 0, during training, validation patches will be overlapping
@@ -76,7 +76,7 @@ def main(overwrite=False):
         model = load_old_model(config["model_file"])
     else:
         # instantiate new model
-        model = isensee2017_model(input_shape=config["input_shape"], n_labels=config["n_labels"],
+        model = isensee2017_model(input_shape=config["input_shape"], depth=4, n_labels=config["n_labels"],
                                   initial_learning_rate=config["initial_learning_rate"],
                                   n_base_filters=config["n_base_filters"])
 
