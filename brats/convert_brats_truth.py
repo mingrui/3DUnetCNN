@@ -8,9 +8,9 @@ import SimpleITK as sitk
 import numpy as np
 from nipype.interfaces.ants import N4BiasFieldCorrection
 
-from tiantan_preprocess import convert_image_format
-import predict
-from train import config
+from brats.tiantan_preprocess import convert_image_format
+import brats.predict
+from brats.config import config_one
 
 from keras_contrib.layers import Deconvolution3D
 
@@ -31,10 +31,10 @@ def normalize_data(img_data):
 
 
 def test_convert_image_to_nii():
-    t2_path = '/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/data/predict_test/IDH_158/t2.nii.gz'
-    normalized_data = '/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/data/predict_test/IDH_158/t2_normalized.nii.gz'
-    out_path = '/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/data/predict_test/IDH_158/stripped.nii.gz'
-    data_path = '/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/data/predict_test/IDH_158/data_t2.nii.gz'
+    t2_path = '/mnt/960EVO/workspace/3DUnetCNN-fork/brats/data/predict_test/IDH_158/t2.nii.gz'
+    normalized_data = '/mnt/960EVO/workspace/3DUnetCNN-fork/brats/data/predict_test/IDH_158/t2_normalized.nii.gz'
+    out_path = '/mnt/960EVO/workspace/3DUnetCNN-fork/brats/data/predict_test/IDH_158/stripped.nii.gz'
+    data_path = '/mnt/960EVO/workspace/3DUnetCNN-fork/brats/data/predict_test/IDH_158/data_t2.nii.gz'
     img = nib.load(t2_path)
     img_data = img.get_data()
     print(img_data.shape)

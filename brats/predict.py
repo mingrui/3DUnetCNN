@@ -1,6 +1,6 @@
 import os
 
-from train import config
+from brats.train import config
 from unet3d.prediction import run_validation_cases
 
 from unet3d.prediction import patch_wise_prediction
@@ -22,9 +22,9 @@ def main():
 
 def make_prediction():
     print("make prediction: ")
-    test_file = "/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/data/predict_test/IDH_158/t2_normalized.nii.gz"
-    out_file = "/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/data/predict_test/IDH_158/test_prediction.nii.gz"
-    model_file = "/media/mingrui/960EVO/workspace/3DUnetCNN-fork/brats/20171201/tumor_segmentation_model.h5"
+    test_file = "/mnt/960EVO/workspace/3DUnetCNN-fork/brats/prediction/validation_case_0/data_t2.nii.gz"
+    out_file = "/mnt/960EVO/workspace/3DUnetCNN-fork/brats/prediction/validation_case_0/test_prediction.nii.gz"
+    model_file = "/mnt/960EVO/workspace/3DUnetCNN-fork/brats/tumor_segmentation_model.h5"
     model_file = config["model_file"]
     model = load_old_model(model_file)
 
@@ -41,5 +41,5 @@ def make_prediction():
     prediction_image.to_filename(out_file)
 
 if __name__ == "__main__":
-    #make_prediction()
-    main()
+    make_prediction()
+    #ain()
