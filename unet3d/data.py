@@ -71,7 +71,7 @@ def write_data_to_file(training_data_files, out_file, image_shape, truth_dtype=n
     n_channels = len(training_data_files[0]) - 1
 
     try:
-        hdf5_file, data_storage, truth_storage, affine_storage = create_data_file(out_file,
+        hdf5_file, data_storage, truth_storage, affine_storage, idh1_storage = create_data_file(out_file,
                                                                                   n_channels=n_channels,
                                                                                   n_samples=n_samples,
                                                                                   image_shape=image_shape)
