@@ -30,10 +30,11 @@ def reslice_image_set(in_files, image_shape, out_files=None, label_indices=None)
     crop_slices = get_cropping_parameters([in_files])
     images = list()
     for index, in_file in enumerate(in_files):
-        interpolation = "continuous"
+        interpolation = "nearest"
         if index in label_indices:
             interpolation = "nearest"
-        images.append(read_image(in_file, image_shape=image_shape, crop=crop_slices, interpolation=interpolation))
+        # images.append(read_image(in_file, image_shape=image_shape, crop=crop_slices, interpolation=interpolation))
+        images.append(read_image(in_file, image_shape=image_shape, crop=None, interpolation=interpolation))
     if out_files:
         for image, out_file in zip(images, out_files):
             image.to_filename(out_file)
