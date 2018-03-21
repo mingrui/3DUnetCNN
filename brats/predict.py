@@ -1,6 +1,5 @@
 import os
 
-from brats.train import config
 from unet3d.prediction import run_validation_cases
 
 from unet3d.prediction import patch_wise_prediction
@@ -9,6 +8,9 @@ from unet3d.training import load_old_model
 
 import nibabel as nib
 import numpy as np
+
+from config import config_isensee
+config = config_isensee
 
 def main():
     prediction_dir = os.path.abspath("prediction")
@@ -41,5 +43,5 @@ def make_prediction():
     prediction_image.to_filename(out_file)
 
 if __name__ == "__main__":
-    make_prediction()
-    #ain()
+    #make_prediction()
+    main()

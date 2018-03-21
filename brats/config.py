@@ -104,3 +104,52 @@ if machine == 'brainteam':
 #config["preprocessed"] = "tiantan_201712_preprocessed" # change this to use different data files
 #config["preprocessed"] = "brats_2017_preprocessed" # brats data
 #config["preprocessed"] = "201712_new" # tiantan new december 2017 data
+
+
+'''
+This configuration is for isensee2017
+'''
+
+config_isensee = dict()
+config_isensee["image_shape"] = (512, 512, 24)  # This determines what shape the images will be cropped/resampled to.
+config_isensee["patch_shape"] = (128, 128, 24)  # switch to None to train on the whole image
+config_isensee["labels"] = (1, )  # the label numbers on the input image
+config_isensee["n_base_filters"] = 16
+config_isensee["n_labels"] = len(config_isensee["labels"])
+config_isensee["all_modalities"] = ["t2"]
+config_isensee["training_modalities"] = config_isensee["all_modalities"]  # change this if you want to only use some of the modalities
+config_isensee["nb_channels"] = len(config_isensee["training_modalities"])
+if "patch_shape" in config_isensee and config_isensee["patch_shape"] is not None:
+    config_isensee["input_shape"] = tuple([config_isensee["nb_channels"]] + list(config_isensee["patch_shape"]))
+else:
+    config_isensee["input_shape"] = tuple([config_isensee["nb_channels"]] + list(config_isensee["image_shape"]))
+config_isensee["truth_channel"] = config_isensee["nb_channels"]
+config_isensee["deconvolution"] = True  # if False, will use upsampling instead of deconvolution
+
+config_isensee["batch_size"] = 4
+config_isensee["validation_batch_size"] = 6
+config_isensee["n_epochs"] = 500  # cutoff the training after this many epochs
+config_isensee["patience"] = 10  # learning rate will be reduced after this many epochs if the validation loss is not improving
+config_isensee["early_stop"] = 50  # training will be stopped after this many epochs without the validation loss improving
+config_isensee["initial_learning_rate"] = 5e-4
+config_isensee["learning_rate_drop"] = 0.5  # factor by which the learning rate will be reduced
+config_isensee["validation_split"] = 0.8  # portion of the data that will be used for training
+config_isensee["flip"] = False  # augments the data by randomly flipping an axis during
+config_isensee["permute"] = False  # data shape must be a cube. Augments the data by permuting in various directions
+config_isensee["distort"] = None  # switch to None if you want no distortion
+config_isensee["augment"] = config_isensee["flip"] or config_isensee["distort"]
+config_isensee["validation_patch_overlap"] = 0  # if > 0, during training, validation patches will be overlapping
+config_isensee["training_patch_start_offset"] = (16, 16, 16)  # randomly offset the first patch index by up to this offset
+config_isensee["skip_blank"] = True  # if True, then patches without any target will be skipped
+
+config_isensee["data_file"] = os.path.abspath("brats_data.h5")
+config_isensee["model_file"] = os.path.abspath("isensee_2017_model.h5")
+config_isensee["training_file"] = os.path.abspath("isensee_training_ids.pkl")
+config_isensee["validation_file"] = os.path.abspath("isensee_validation_ids.pkl")
+config_isensee["overwrite"] = True  # If True, will previous files. If False, will use previously written files.
+
+#config["preprocessed"] = "tiantan_preprocessed"
+config_isensee["preprocessed"] = "tiantan_preprocessed_512_test"
+#config["preprocessed"] = "tiantan_skull_strip"
+if machine == 'brainteam':
+    config_isensee["preprocessed"] = "/media/brainteam/hdd1/TiantanData/2017-11/tiantan_preprocessed"
