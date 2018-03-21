@@ -15,9 +15,9 @@ import nibabel as nib
 
 import re
 
-from brats.train import config_one
+from config import config_isensee
 
-config = config_one
+config = config_isensee
 
 
 def append_basename(in_file, append):
@@ -235,12 +235,16 @@ def fill_to_512_x_512():
     This means when training, don't need to reshape images into different shape
     :return:
     '''
+    data_path = "/media/brainteam/hdd1/TiantanData/2017-11/tiantan_preprocessed_512"
+    #data_path = "/mnt/960EVO/workspace/3DUnetCNN-fork/brats/data/tiantan_preprocessed_512_test"
+
+
     data_files = list()
-    for subject_dir in glob.glob(os.path.join(os.path.dirname(__file__), "data", config["preprocessed"], "*", "*")):
+    for subject_dir in glob.glob(os.path.join(data_path, "*", "*")):
         for subject in glob.glob(os.path.join(subject_dir, "*")):
             data_files.append(subject)
     for file in data_files:
-        file = os.path.join('/mnt/960EVO/workspace/3DUnetCNN-fork/brats/', file)
+        file = os.path.join(data_path, file)
         img = nib.load(file)
         img_data = img.get_data()
         # create new image of size 512 x 512

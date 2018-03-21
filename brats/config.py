@@ -149,7 +149,7 @@ config_isensee["validation_file"] = os.path.abspath("isensee_validation_ids.pkl"
 config_isensee["overwrite"] = True  # If True, will previous files. If False, will use previously written files.
 
 #config["preprocessed"] = "tiantan_preprocessed"
-config_isensee["preprocessed"] = "tiantan_preprocessed_512_test"
+config_isensee["preprocessed"] = "tiantan_preprocessed_512"
 #config["preprocessed"] = "tiantan_skull_strip"
 if machine == 'brainteam':
     config_isensee["preprocessed"] = "/media/brainteam/hdd1/TiantanData/2017-11/tiantan_preprocessed"
