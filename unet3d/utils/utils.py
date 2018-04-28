@@ -4,7 +4,7 @@ import collections
 
 import nibabel as nib
 import numpy as np
-from nilearn.image import reorder_img, new_img_like
+from nilearn.image import reorder_img, new_img_like, resample_img
 
 from .nilearn_custom_utils.nilearn_utils import crop_img_to
 from .sitk_utils import resample_to_spacing, calculate_origin_offset
@@ -57,7 +57,7 @@ def read_image(in_file, image_shape=None, interpolation='linear', crop=None):
     if crop:
         image = crop_img_to(image, crop, copy=True)
     if image_shape:
-        return resize(image, new_shape=image_shape, interpolation=interpolation)
+        return resize_new(image, new_shape=image_shape, interpolation=interpolation)
     else:
         return image
 
@@ -68,9 +68,9 @@ def fix_shape(image):
     return image
 
 
-def resize(image, new_shape, interpolation="linear"):
+def resize_new(image, new_shape, interpolation="linear"):
     image = reorder_img(image, resample=interpolation)
-    zoom_level = np.divide(new_shape, image.shape)
+    zoom_level = np.true_divide(new_shape, image.shape)
     new_spacing = np.divide(image.header.get_zooms(), zoom_level)
     new_data = resample_to_spacing(image.get_data(), image.header.get_zooms(), new_spacing,
                                    interpolation=interpolation)
@@ -78,3 +78,15 @@ def resize(image, new_shape, interpolation="linear"):
     np.fill_diagonal(new_affine, new_spacing.tolist() + [1])
     new_affine[:3, 3] += calculate_origin_offset(new_spacing, image.header.get_zooms())
     return new_img_like(image, new_data, affine=new_affine)
+
+def resize(image, new_shape, interpolation='linear'):
+    input_shape = np.asarray(image.shape, dtype=np.float16)
+    #print("input_shape: {}".format(input_shape))
+    ras_image = reorder_img(image, resample=interpolation)
+    output_shape = np.asarray(new_shape)
+    #print("output_shape: {}".format(output_shape))
+    new_spacing = input_shape/output_shape
+    #print("new_spacing: {}".format(new_spacing))
+    new_affine = np.copy(ras_image.affine)
+    new_affine[:3, :3] = ras_image.affine[:3, :3] * np.diag(new_spacing)
+    return resample_img(ras_image, target_affine=new_affine, target_shape=output_shape, interpolation=interpolation)
