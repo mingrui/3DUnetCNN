@@ -112,7 +112,7 @@ This configuration is for isensee2017
 
 
 config_isensee = dict()
-config_isensee["image_shape"] = (192, 192, 192)  # This determines what shape the images will be cropped/resampled to.
+config_isensee["image_shape"] = (144, 144, 144)  # This determines what shape the images will be cropped/resampled to.
 config_isensee["patch_shape"] = (64, 64, 64)  # switch to None to train on the whole image
 config_isensee["labels"] = (1, )  # the label numbers on the input image
 config_isensee["n_base_filters"] = 16
