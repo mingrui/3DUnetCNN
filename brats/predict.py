@@ -14,7 +14,7 @@ config = config_isensee
 
 def main(prediction_dir):
     run_validation_cases(validation_keys_file=config["validation_file"],
-                         model_file='isensee_2017_model_freeze.h5',
+                         model_file=config['model_file'],
                          training_modalities=config["training_modalities"],
                          labels=config["labels"],
                          hdf5_file=config["data_file"],
