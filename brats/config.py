@@ -112,8 +112,8 @@ This configuration is for isensee2017
 
 
 config_isensee = dict()
-config_isensee["image_shape"] = (128, 128, 128)  # This determines what shape the images will be cropped/resampled to.
-config_isensee["patch_shape"] = (64, 64, 64)  # switch to None to train on the whole image
+config_isensee["image_shape"] = (128, 128, 24)  # This determines what shape the images will be cropped/resampled to.
+config_isensee["patch_shape"] = (64, 64, 24)  # switch to None to train on the whole image
 config_isensee["labels"] = (1, )  # the label numbers on the input image
 config_isensee["n_base_filters"] = 16
 config_isensee["n_labels"] = len(config_isensee["labels"])
@@ -134,7 +134,7 @@ config_isensee["patience"] = 10  # learning rate will be reduced after this many
 config_isensee["early_stop"] = 50  # training will be stopped after this many epochs without the validation loss improving
 config_isensee["initial_learning_rate"] = 5e-4
 config_isensee["learning_rate_drop"] = 0.5  # factor by which the learning rate will be reduced
-config_isensee["validation_split"] = 0.85  # portion of the data that will be used for training
+config_isensee["validation_split"] = 0.8  # portion of the data that will be used for training
 config_isensee["flip"] = False  # augments the data by randomly flipping an axis during
 config_isensee["permute"] = False  # data shape must be a cube. Augments the data by permuting in various directions
 config_isensee["distort"] = None  # switch to None if you want no distortion
@@ -149,6 +149,6 @@ config_isensee["training_file"] = os.path.abspath("isensee_training_ids.pkl")
 config_isensee["validation_file"] = os.path.abspath("isensee_validation_ids.pkl")
 config_isensee["overwrite"] = True  # If True, will previous files. If False, will use previously written files.
 
-config_isensee["preprocessed"] = "/mnt/960EVO/datasets/brats/BRATS2017/preprocessed"
+config_isensee["preprocessed"] = "/mnt/960EVO/datasets/tiantan/2017-11/tiantan_preprocessed"
 if machine == 'brainteam':
     config_isensee["preprocessed"] = "/media/brainteam/hdd1/TiantanData/2017-11/tiantan_preprocessed"
