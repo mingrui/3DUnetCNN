@@ -1,6 +1,7 @@
 import pickle
 import os
 import collections
+import random
 
 import nibabel as nib
 import numpy as np
@@ -54,9 +55,11 @@ def read_image(in_file, image_shape=None, interpolation='linear', crop=None):
     print("Reading: {0}".format(in_file))
     image = nib.load(os.path.abspath(in_file))
     image = fix_shape(image)
+    print('image.shape : ', image.shape, 'target shape : ', image_shape)
     if crop:
         image = crop_img_to(image, crop, copy=True)
     if image_shape:
+        debug_name = ''.join(in_file.split('/')[-2:])
         return resize_new(image, new_shape=image_shape, interpolation=interpolation)
     else:
         return image
@@ -68,16 +71,24 @@ def fix_shape(image):
     return image
 
 
-def resize_new(image, new_shape, interpolation="linear"):
-    image = reorder_img(image, resample=interpolation)
+def resize_new(image, new_shape, interpolation="linear", debug_name=None):
+    # image = reorder_img(image, resample=interpolation)
     zoom_level = np.true_divide(new_shape, image.shape)
     new_spacing = np.divide(image.header.get_zooms(), zoom_level)
     new_data = resample_to_spacing(image.get_data(), image.header.get_zooms(), new_spacing,
                                    interpolation=interpolation)
     new_affine = np.copy(image.affine)
-    np.fill_diagonal(new_affine, new_spacing.tolist() + [1])
-    new_affine[:3, 3] += calculate_origin_offset(new_spacing, image.header.get_zooms())
-    return new_img_like(image, new_data, affine=new_affine)
+    # np.fill_diagonal(new_affine, new_spacing.tolist() + [1])
+    # new_affine[:3, 3] += calculate_origin_offset(new_spacing, image.header.get_zooms())
+
+
+    new_img = new_img_like(image, new_data, affine=new_affine)
+
+    if debug_name is not None:
+        print('new image shape : ', new_img.shape)
+        nib.save(new_img, debug_name)
+
+    return new_img
 
 def resize(image, new_shape, interpolation='linear'):
     input_shape = np.asarray(image.shape, dtype=np.float16)
