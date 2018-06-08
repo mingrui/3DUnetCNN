@@ -6,16 +6,24 @@ from unet3d.generator import get_training_and_validation_generators
 from unet3d.model import isensee2017_model
 from unet3d.training import load_old_model, train_model
 from config import config_isensee
+import argparse
+
+parser = argparse.ArgumentParser(description='isensee2017 training')
+
+parser.add_argument('--data-path', type=str, default=None, metavar='str',
+                    help='training data path')
+
+args = parser.parse_args()
 
 config = config_isensee
 
 def fetch_training_data_files(return_subject_ids=False):
     training_data_files = list()
     subject_ids = list()
-    for subject_dir in glob.glob(os.path.join(os.path.dirname(__file__), "data", config["preprocessed"], "*")):
+    for subject_dir in glob.glob(os.path.join(os.path.dirname(__file__), "data", args.data_path, "*")):
         subject_ids.append(os.path.basename(subject_dir))
         subject_files = list()
-        for modality in config["training_modalities"] + ["truth"]:
+        for modality in config["training_modalities"] + config['truth_modality']:
             subject_files.append(os.path.join(subject_dir, modality + ".nii.gz"))
         training_data_files.append(tuple(subject_files))
     if return_subject_ids:

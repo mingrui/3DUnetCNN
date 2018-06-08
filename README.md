@@ -128,4 +128,9 @@ LGG Data Citation:
  * Spyridon Bakas, Hamed Akbari, Aristeidis Sotiras, Michel Bilello, Martin Rozycki, Justin Kirby, John Freymann, Keyvan Farahani, and Christos Davatzikos. (2017) Segmentation Labels and Radiomic Features for the Pre-operative Scans of the TCGA-LGG collection. The Cancer Imaging Archive. https://doi.org/10.7937/K9/TCIA.2017.GJQ7R0EF
 
 # Mingrui's notes
-* crop is set to true by default
+* crop is set to true by default, change this so don't crop
+* http://insightsoftwareconsortium.github.io/SimpleITK-Notebooks/
+* write_image_data_to_file -> reslice_image_set -> read_image_files -(interpolation)-> read_image <br>
+  -> resize_new -> resample_to_spacing -> sitk_resample_to_spacing -> sitk_resample_to_image <br>
+  Questions: print(interpolation), print(reference_image.shape) <br>
+  

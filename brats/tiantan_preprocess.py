@@ -16,6 +16,7 @@ import nibabel as nib
 import re
 
 from config import config_isensee
+import argparse
 
 config = config_isensee
 
@@ -130,17 +131,18 @@ def convert_tiantan_folder(in_folder, out_folder, truth_name="tu",
         perform_bias_correction = no_bias_correction_modalities and name not in no_bias_correction_modalities
         normalize_image(image_file, out_file, bias_correction=perform_bias_correction)
     # copy the truth file
-    try:
-        truth_file = get_image(in_folder, truth_name)
-    except RuntimeError:
-        truth_file = get_image(in_folder, truth_name.split("_")[0])
-    out_file = os.path.abspath(os.path.join(out_folder, "truth.nii.gz"))
-    # shutil.copy(truth_file, out_file)
-    convert_image_format(truth_file, out_file)
-    check_origin(out_file, get_image(in_folder, ["t2"][0]))
+    if truth_name is not None:
+        try:
+            truth_file = get_image(in_folder, truth_name)
+        except RuntimeError:
+            truth_file = get_image(in_folder, truth_name.split("_")[0])
+        out_file = os.path.abspath(os.path.join(out_folder, "truth.nii.gz"))
+        # shutil.copy(truth_file, out_file)
+        convert_image_format(truth_file, out_file)
+        check_origin(out_file, get_image(in_folder, ["t2"][0]))
 
 
-def convert_tiantan_data(tiantan_folder, out_folder, overwrite=False, no_bias_correction_modalities=("flair",)):
+def convert_tiantan_data(tiantan_folder, out_folder, no_bias_correction_modalities=("flair",), truth_name='tu'):
     """
     Preprocesses the BRATS data and writes it to a given output folder. Assumes the original folder structure.
     :param tiantan_folder: folder containing the original brats data
@@ -154,13 +156,13 @@ def convert_tiantan_data(tiantan_folder, out_folder, overwrite=False, no_bias_co
     for subject_folder in glob.glob(os.path.join(tiantan_folder, "*")):
         if os.path.isdir(subject_folder):
             subject = os.path.basename(subject_folder)
-            new_subject_folder = os.path.join(out_folder, os.path.basename(os.path.dirname(subject_folder)),
-                                              subject)
-            if not os.path.exists(new_subject_folder) or overwrite:
-                if not os.path.exists(new_subject_folder):
-                    os.makedirs(new_subject_folder)
-                convert_tiantan_folder(subject_folder, new_subject_folder,
-                                       no_bias_correction_modalities=no_bias_correction_modalities)
+            new_subject_folder = os.path.join(out_folder, subject)
+            print(new_subject_folder)
+            if os.path.exists(new_subject_folder):
+                shutil.rmtree(new_subject_folder)
+            os.makedirs(new_subject_folder)
+            convert_tiantan_folder(subject_folder, new_subject_folder, truth_name,
+                                   no_bias_correction_modalities=no_bias_correction_modalities)
 
 
 def convert_truth_to_nii():
@@ -271,6 +273,15 @@ def fill_to_512_x_512():
         nib.save(new_img, new_file_path)
 
 
+parser = argparse.ArgumentParser(description='tiantan data preprocessing')
+
+parser.add_argument('--input-path', type=str, default=None, metavar='str',
+                    help='original data path')
+parser.add_argument('--output-path', type=str, default=None, metavar='str',
+                    help='preprocessed data output path')
+
+args = parser.parse_args()
+
 if __name__ == "__main__":
     print('tiantan preprocess')
     # convert_truth_to_nii()
@@ -280,4 +291,8 @@ if __name__ == "__main__":
     # convert_tiantan_data('/media/mingrui/960EVO/datasets/tiantan/2017-11/valid_tiantan_IDH1', '/media/mingrui/960EVO/datasets/tiantan/2017-11/tiantan_preprocessed/')
     # convert_tiantan_data('/media/mingrui/960EVO/datasets/tiantan/2017-12/clean', '/media/mingrui/960EVO/datasets/tiantan/2017-12//tiantan_preprocessed/')
 
-    fill_to_512_x_512()
+    # fill_to_512_x_512()
+
+    convert_tiantan_data(args.input_path,
+                         args.output_path,
+                         truth_name=None)

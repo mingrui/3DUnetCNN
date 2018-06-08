@@ -46,6 +46,7 @@ def read_image_files(image_files, image_shape=None, crop=None, label_indices=Non
             interpolation = "nearest"
         else:
             interpolation = "linear"
+        print(interpolation)
         image_list.append(read_image(image_file, image_shape=image_shape, crop=crop, interpolation=interpolation))
 
     return image_list
